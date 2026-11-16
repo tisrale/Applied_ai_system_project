@@ -54,7 +54,7 @@ PROFILES = {
         "target_energy": 0.9,
         "likes_acoustic": False,
     },
-    # Personal taste: calm Ethio-Jazz like Gigi (Kahine, Abayi) and Tewodros Tadesse.
+    # Personal taste: calm Ethio-Jazz like Gigi (Kahine, Abayi, Nafeken).
     "My Taste (Gigi)": {
         "favorite_genre": "ethio-jazz",
         "favorite_mood": "peaceful",

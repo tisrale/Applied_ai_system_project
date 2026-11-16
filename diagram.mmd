@@ -1,0 +1,46 @@
+%% VibeJudge system diagram (Mermaid). Renders on GitHub, or paste into https://mermaid.live
+flowchart TD
+    U([Listener types a request<br/>'calm Ethiopian jazz for a rainy evening'])
+    UI[Streamlit app / CLI<br/>app.py · src/ask.py]
+    U --> UI
+
+    UI --> G1{Input guardrail<br/>check_request}
+    UI -- chat follow-up --> CH[Chat refiner<br/>src/chat.py<br/>updates last profile]
+    CH -- prompt with current profile --> GEM3[(Gemini)]
+    GEM3 -- updated profile + exclusions --> CV[validate + keep only<br/>exclusions the user named]
+    CV --> RET
+    G1 -- empty / too long --> R1[Friendly error shown,<br/>no AI call made]
+
+    G1 -- ok --> P[Parser<br/>src/parser.py]
+    P -- prompt limited to<br/>catalog vocabulary --> GEM1[(Gemini<br/>gemini-3.5-flash-lite)]
+    GEM1 -- JSON taste profile --> V[validate_profile<br/>snap to catalog values,<br/>clamp energy, flag 'not in catalog']
+    P -. Gemini down / bad JSON .-> KW[Keyword parser<br/>offline fallback] --> V
+
+    V --> RET[Retriever: original VibeJudge scorer<br/>src/recommender.py<br/>ranks all songs]
+    DB[(data/songs.csv<br/>25 songs)] --> RET
+    RET -- top k songs + score reasons --> EX[Explainer<br/>src/explainer.py]
+    EX -- ONLY the retrieved songs --> GEM2[(Gemini)]
+    GEM2 -- JSON explanation --> G2{Output guardrail<br/>check_explanation}
+    EX -. Gemini down .-> T[Template reasons<br/>from scorer]
+
+    G2 -- all songs real & retrieved --> OK[verified]
+    G2 -- invented / unretrieved song,<br/>leaked artist, skipped pick --> FIX[corrected:<br/>remove + replace with scorer reason]
+    T --> FB[fallback]
+
+    OK --> OUT[Song cards: art, tags, match bar,<br/>explanation, guardrail badge]
+    FIX --> OUT
+    FB --> OUT
+    PV[(data/previews.csv<br/>iTunes links · Deezer IDs)] --> OUT
+    OUT --> U
+
+    RET -. cards always come from the scorer,<br/>never from Gemini .-> OUT
+
+    LOG[[logs/vibejudge.log<br/>request, profile, picks, guardrail, latency]]
+    G2 -.-> LOG
+    G1 -.-> LOG
+
+    subgraph Testing and evaluation
+        TESTS[pytest: 56 tests<br/>FakeGemini, no API key]
+        EVAL[src/evaluate.py<br/>13 scripted cases incl. adversarial]
+        HUMAN[human_evaluation.md<br/>8 outputs rated by me]
+    end

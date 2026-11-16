@@ -13,3 +13,13 @@ venv/
 
 # Pytest cache
 .pytest_cache/
+
+# Secrets (Gemini API key)
+.env
+
+
+# Run logs
+logs/
+
+# Streamlit secrets (Gemini key on Streamlit Cloud)
+.streamlit/secrets.toml

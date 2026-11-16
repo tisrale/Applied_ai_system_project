@@ -22,5 +22,5 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,po
 21,One Love,Bob Marley & The Wailers,reggae,uplifting,0.55,76,0.85,0.78,0.40,80,1970,uplifting;unifying;spiritual,english,false
 22,Kahine (My Priest),Gigi,ethio-jazz,peaceful,0.35,84,0.40,0.40,0.85,25,2000,devotional;mystical;yearning,amharic,false
 23,Abayi,Gigi,ethio-jazz,nostalgic,0.45,92,0.55,0.60,0.60,30,2000,nostalgic;hypnotic;flowing,amharic,false
-24,Becher Yider,Tewodros Tadesse,ethio-jazz,romantic,0.38,78,0.55,0.50,0.70,20,1980,romantic;sentimental;longing,amharic,false
+24,Nafeken,Gigi,ethio-jazz,nostalgic,0.63,92,0.45,0.55,0.65,25,2000,longing;yearning;dramatic,amharic,false
 25,Jerusalem,Alpha Blondy,reggae,uplifting,0.60,80,0.75,0.75,0.35,45,1980,spiritual;uplifting;peaceful,multilingual,false
