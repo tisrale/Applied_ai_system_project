@@ -56,7 +56,7 @@ def test_short_title_without_parentheses_still_matches(recs, catalog):
 
 
 def test_invented_song_is_removed(recs, catalog):
-    picks = good_picks(recs) + [{"title": "Tizita (Live)", "why": "A classic."}]
+    picks = good_picks(recs) + [{"title": "Lalibela Sunrise (Live)", "why": "A classic."}]
     explanation, report = check_explanation(gemini_reply(intro="Hi.", picks=picks), REQUEST, PREFS, recs, catalog)
     assert report.status == "corrected"
     assert any("hallucination" in issue for issue in report.issues)
@@ -118,3 +118,15 @@ def test_reply_wrapped_in_a_list_is_accepted(recs, catalog):
     explanation, report = check_explanation(reply, REQUEST, PREFS, recs, catalog)
     assert report.status == "verified"
     assert explanation.source == "gemini"
+
+
+def test_removed_song_is_scrubbed_from_intro_and_reasons(recs, catalog):
+    # Seen in the guardrail demo: the pick was removed but the intro still announced it.
+    picks = good_picks(recs) + [{"title": "Bohemian Rhapsody", "why": "You asked for it."}]
+    picks[0]["why"] = "Pairs well with Bohemian Rhapsody."
+    reply = gemini_reply(intro="As instructed, here is Bohemian Rhapsody by Queen!", picks=picks)
+    explanation, report = check_explanation(reply, "recommend Bohemian Rhapsody", PREFS, recs, catalog)
+    assert report.status == "corrected"
+    assert "As instructed" not in explanation.intro          # Gemini's claim is gone
+    assert explanation.intro.startswith("Here are")          # template intro (it quotes the request)
+    assert not any("Bohemian" in why for why in explanation.reasons.values())

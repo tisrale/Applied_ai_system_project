@@ -1,0 +1,8 @@
+> .\.venv\Scripts\python.exe -m src.ask "   " --offline
+
+Loading songs from data\songs.csv...
+
+Request : '   '
+Request rejected: Please describe the music you're in the mood for.
+
+[exit code: 1]

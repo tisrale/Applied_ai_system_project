@@ -17,7 +17,7 @@ flowchart TD
     P -. Gemini down / bad JSON .-> KW[Keyword parser<br/>offline fallback] --> V
 
     V --> RET[Retriever: original VibeJudge scorer<br/>src/recommender.py<br/>ranks all songs]
-    DB[(data/songs.csv<br/>25 songs)] --> RET
+    DB[(data/songs.csv<br/>41 songs)] --> RET
     RET -- top k songs + score reasons --> EX[Explainer<br/>src/explainer.py]
     EX -- ONLY the retrieved songs --> GEM2[(Gemini)]
     GEM2 -- JSON explanation --> G2{Output guardrail<br/>check_explanation}
@@ -40,7 +40,8 @@ flowchart TD
     G1 -.-> LOG
 
     subgraph Testing and evaluation
-        TESTS[pytest: 56 tests<br/>FakeGemini, no API key]
+        TESTS[pytest: 60 tests<br/>FakeGemini, no API key]
+        DEMO[src/guardrail_demo.py<br/>real guardrails vs scripted bad replies]
         EVAL[src/evaluate.py<br/>13 scripted cases incl. adversarial]
         HUMAN[human_evaluation.md<br/>8 outputs rated by me]
     end

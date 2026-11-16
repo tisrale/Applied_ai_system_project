@@ -1,0 +1,24 @@
+> .\.venv\Scripts\python.exe -m src.ask "songs for the gym" --offline
+
+Loading songs from data\songs.csv...
+
+Request : songs for the gym
+Profile : energetic, energy 0.9, electronic   [parsed by keywords]
+
+Here are 5 songs from the catalog for "songs for the gym" (read as: energetic, energy 0.9, electronic).
+
+1. Levels - Avicii  (edm, energetic)  score 2.44/2.50
+   Picked because the mood is energetic, its energy (0.95) is close to what you asked for (0.90).
+2. Blinding Lights - The Weeknd  (synthwave, energetic)  score 2.40/2.50
+   Picked because the mood is energetic, its energy (0.82) is close to what you asked for (0.90).
+3. Santorini - Yanni  (new age, energetic)  score 2.35/2.50
+   Picked because the mood is energetic, its energy (0.85) is close to what you asked for (0.90).
+4. Bad Romance - Lady Gaga  (pop, intense)  score 1.44/2.50
+   Picked because its energy (0.93) is close to what you asked for (0.90).
+5. Mr. Brightside - The Killers  (rock, intense)  score 1.44/2.50
+   Picked because its energy (0.91) is close to what you asked for (0.90).
+
+Guardrail: FALLBACK  (explanation by template, model offline, 0.0s)
+  - Offline mode: explanation written from scorer reasons.
+
+[exit code: 0]

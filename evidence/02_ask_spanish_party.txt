@@ -1,0 +1,24 @@
+> .\.venv\Scripts\python.exe -m src.ask "Spanish party music"
+
+Loading songs from data\songs.csv...
+
+Request : Spanish party music
+Profile : latin, festive, energy 0.8, electronic, tags: festive/danceable/energetic, spanish   [parsed by gemini]
+
+Here are 5 songs from the catalog for "Spanish party music" (read as: latin, festive, energy 0.8, electronic, tags: festive/danceable/energetic, spanish).
+
+1. Danza Kuduro - Don Omar  (latin, festive)  score 5.33/5.75
+   Picked because it's latin, the mood is festive, it feels danceable and festive, its energy (0.92) is close to what you asked for (0.80).
+2. Vivir Mi Vida - Marc Anthony  (latin, festive)  score 4.89/5.75
+   Picked because it's latin, the mood is festive, it feels festive, its energy (0.86) is close to what you asked for (0.80).
+3. Hips Don't Lie - Shakira  (latin, festive)  score 4.88/5.75
+   Picked because it's latin, the mood is festive, it feels danceable and festive, its energy (0.82) is close to what you asked for (0.80).
+4. Checheho - Aster Aweke  (afro-pop, festive)  score 2.77/5.75
+   Picked because the mood is festive, it feels danceable and festive, its energy (0.88) is close to what you asked for (0.80).
+5. Can't Stop the Feeling! - Justin Timberlake  (pop, happy)  score 1.64/5.75
+   Picked because it feels danceable, its energy (0.82) is close to what you asked for (0.80).
+
+Guardrail: FALLBACK  (explanation by template, model gemini:gemini-3.5-flash-lite, 14.2s)
+  - Gemini couldn't write the explanation; used scorer reasons instead.
+
+[exit code: 0]

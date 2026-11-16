@@ -14,7 +14,7 @@ This card has two parts. **Part A** covers **VibeJudge 2.0**, the applied AI sys
 | **Type** | Retrieval-augmented recommender: LLM for language, rule-based scorer for ranking |
 | **LLM** | Google Gemini `gemini-3.5-flash-lite` (free tier), temperature 0.2, JSON output mode |
 | **Retriever** | VibeJudge 1.0 content-based scorer (Part B), unchanged |
-| **Catalog** | 25 real songs in `data/songs.csv`, with 30-second previews from iTunes/Deezer |
+| **Catalog** | 41 real songs in `data/songs.csv` (25 from Module 3, 16 added), with 30-second previews from iTunes/Deezer |
 | **Interfaces** | Streamlit web app (`app.py`), CLI (`src/ask.py`) |
 
 You describe what you want in your own words. Gemini turns that into a taste profile, the scorer picks the 5 best songs from the catalog, and Gemini explains each pick. A guardrail then checks that the explanation only talks about those 5 songs.
@@ -45,6 +45,7 @@ There are two Gemini calls per request (three in chat follow-ups):
 | Gemini slips another artist into a reason | that reason is replaced with the scorer's own reason | `test_leaked_artist_in_reason_is_replaced` |
 | Gemini skips a song | the scorer's reason fills the gap | `test_skipped_song_gets_scorer_reason` |
 | Bad or oddly shaped JSON | template fallback; `[{...}]` is unwrapped | `test_invalid_json_falls_back_to_template`, `test_reply_wrapped_in_a_list_is_accepted` |
+| A removed song still named in the intro or another reason ("As instructed, here is Bohemian Rhapsody!") | removed titles are scrubbed from all text; that text is replaced | `test_removed_song_is_scrubbed_from_intro_and_reasons`; found by `src/guardrail_demo.py` |
 | Prompt injection ("ignore your rules…") | request framed as data; Gemini can't pick songs; output guardrail | eval case 12 (passed: catalog songs only, "Not in the catalog: Mulatu Astatke") |
 | Chat: Gemini excludes songs the listener never mentioned | exclusions must be named in the message; others are ignored and logged | `test_exclusions_the_listener_did_not_name_are_ignored` |
 | Chat: Gemini claims a change it didn't make | the "what changed" line is computed from the profile difference | `test_changes_are_computed_not_generated` |
@@ -54,33 +55,37 @@ The app always shows which path was taken: ✅ **verified**, 🛠️ **corrected
 
 ## A5. Evaluation
 
-**Automated tests:** 56 pytest tests, all passing, with no API key or network (Gemini is replaced by `FakeGemini`).
+**Automated tests:** 60 pytest tests, all passing, with no API key or network (Gemini is replaced by `FakeGemini`).
 
 **Scripted evaluation** (`src/evaluate.py`, 13 cases: 9 normal, 2 edge, 2 adversarial):
 
 | Run | Passed | Guardrail results |
 |---|---|---|
-| Live Gemini | 13/13 | 11 verified, 1 fallback (Gemini 503), 1 rejected (empty request, as expected) |
-| Offline (no Gemini) | 13/13 | all fallback, by design |
+| Live Gemini | 12/13 | 12 verified, 1 rejected (empty request, as expected). The 1 failure is real (below) |
+| Offline (no Gemini) | 12/13 | all fallback, by design; same failure |
 
 **Human evaluation:** I rated 8 live outputs on relevance and explanation quality (1–5). See [human_evaluation.md](human_evaluation.md).
-Average **relevance 3.1/5**, average **explanation 4.5/5**. The explanations were consistently accurate and honest. The picks were only as good as the catalog: requests with one matching song (Spanish party, night drive) or a preference the genre bonus overrides (80s classics) scored 2/5 on relevance.
+I rated the same 8 requests twice. **25-song catalog:** relevance **3.1/5**, explanation **4.5/5**. **After adding 16 songs aimed at the weakest results:** relevance **3.9/5**, explanation **4.8/5**. "Spanish party music" and "moody night drive" went from 2/5 to 4/5 with no code changes, so the data was the bottleneck, not the model.
+
+**The failure I kept on purpose:** "romantic Amharic love songs" returns romantic songs in Bambara, English and instrumental, but no Amharic song. Mood (+1.0) outweighs language (+0.5), and since Becher Yider was replaced, no song in the catalog is both romantic and Amharic. I could have loosened the test to make it pass. I kept it failing because it shows a real weakness, and the code comment in `src/evaluate.py` says why.
 
 **What surprised me while testing reliability:**
 - **The guardrail almost never had to fire on real outputs.** Gemini stayed inside the 5 songs it was given in every live run. The failures came from places I didn't expect: the *parser* adding preferences nobody asked for ("instrumental" for "calm Ethiopian jazz"), and Gemini saying Bob Marley wasn't in the catalog when One Love is.
 - **The free tier is a reliability problem in itself.** My first full evaluation hit the 15-requests-per-minute limit halfway through. Without the fallback, 4 of the 13 cases would have crashed.
 - **Gemini's JSON isn't always the shape you asked for.** Once it returned `[{...}]` instead of `{...}`, which the guardrail treated as invalid until I fixed it.
 - **Gemini over-helps in chat.** Asked to "make it reggae", it also removed every previous pick and all ethio-jazz, which knocked out Jerusalem, a reggae song. The fix wasn't a better prompt alone: an exclusion now has to be named in the listener's message.
+- **Showing a guardrail work exposed a gap in it.** When I built `src/guardrail_demo.py` to feed the guardrail a model that obeys a prompt injection, the fake pick was removed, but the intro still said "As instructed, here is Bohemian Rhapsody by Queen!" Removed titles are now scrubbed from all of the text.
 - **Some failures come from my tests, not the model.** "Romantic Amharic love songs" failed at first because Gemini treated *Amharic* as a language instead of a genre. That's a better reading, so I fixed the test, not the code, and noted that in `src/evaluate.py`.
 
 ## A6. Limitations and biases
 
-- **The scorer's biases carry over** (Part B, section 6). Genre is worth +2.0, and other preferences are worth much less. For "80s classics for a road trip", Gemini picked rock + 1980s, and the genre points beat the decade points, so Mr. Brightside (2000s) ranked #1.
+- **The scorer's biases carry over** (Part B, section 6). Genre is worth +2.0, and other preferences are worth much less. For "80s classics for a road trip", Gemini chose *rock*, so the 80s pop songs (Take On Me, Billie Jean) got no genre points and were missed, while Mr. Brightside (2000s) still made the top 2.
+- **The genre bonus walls off cultures spread across genres.** The Ethiopian songs are ethio-jazz, afro-pop and r&b. For "something like Gigi but more upbeat", Gemini picked *ethio-jazz*, so the upbeat Ethiopian songs (Checheho, Sebebu, Nin Deema) never appeared, and the slow Tezeta did. In chat, "a bit livelier, no Gigi" ranked Tezeta (energy 0.25) #1 for the same reason. Listeners whose music the catalog labels in several ways are served worst.
 - **Gemini's reading is a single point of failure.** If it misreads the request, every pick is off. For "something to fall asleep to", it chose *electronic* sound, an odd choice the scorer then followed faithfully.
 - **Explanations can sound more certain than the data.** Gemini says things like "a decent energy level of 0.63" as if that were measured. Every attribute was estimated by hand or by AI. Nafeken's energy changed from 0.45 to 0.63 based on a written description, and that moved it from #2 to #3 for my own profile.
 - **Western-music bias in what Gemini knows.** Gemini knows Western artists far better than Ethiopian ones, so its "not in the catalog" notes and its reading of artist names are likely less reliable for Ethiopian music. I haven't tested requests written in Amharic script. The input guardrail accepts them, but I don't know how well Gemini reads them.
-- **The guardrail can't catch omissions.** It checks *which* songs Gemini names, not what the reasons leave out. For "80s classics", the #1 reason never mentioned that Mr. Brightside isn't from the 80s. Every sentence was true, but the answer was still misleading.
-- **Small, uneven catalog.** Most genres have one song, so many requests get one real match plus filler, and Gemini politely calls the filler "a looser fit."
+- **The guardrail can't catch omissions, and they're inconsistent.** It checks *which* songs Gemini names, not what the reasons leave out. In one run, the "80s classics" reason for Mr. Brightside never mentioned that it isn't from the 80s. In a later run, it did. Every sentence was true both times, but the first answer was misleading.
+- **Small, uneven catalog.** 41 songs. Many genres still have one song, so many requests get one or two real matches plus filler, and Gemini politely calls the filler "a looser fit."
 - **One genre and one mood per request.** "Ethiopian jazz or reggae" can't be expressed.
 
 ## A7. Misuse and how it's prevented
@@ -96,6 +101,15 @@ Average **relevance 3.1/5**, average **explanation 4.5/5**. The explanations wer
 - **Previews** (`data/previews.csv`): exact iTunes tracks chosen by hand, because automatic matches were sometimes wrong (a Clair de Lune *lullaby*, One Love *feat. Patoranking*). The Deezer songs (Kahine, Abayi) store track IDs, because Deezer preview links expire.
 - **Song #24:** Becher Yider (Tewodros Tadesse) was replaced with **Nafeken (Gigi)**. The only playable recording of Becher Yider (YouTube) didn't play well, and I couldn't find it on Spotify. I chose the mood (nostalgic). Its energy (0.63) and *dramatic* tag came from a written description of the song (waltz rhythm, flute, soaring vocals). Part B still mentions Becher Yider, because it describes Module 3 results recorded before the swap.
 
+- **Catalog growth (25 → 41 songs):** I chose most new songs myself to fill the gaps my ratings exposed:
+  - **Ethiopian:** Ali Birra "Nin Deema" (Afaan Oromo), Aster Aweke "Sebebu" and "Checheho", Mulatu Astatke "Tezeta (Nostalgia)"
+  - **Malian:** Oumou Sangaré "Diaraby Nene" and "Kamelemba" (Bambara)
+  - **Yanni** instrumentals
+  - **Party, 80s and night-drive:** 7 songs
+
+  I set the genre, mood and energy of the Ethiopian songs myself. The other values are estimates. Ali Birra's "Rabbi Moo Namumaa" and "Har'a Moo Boruu" were my first choice, but they aren't on any streaming service.
+- **Genre labels are judgment calls.** "Nin Deema" exists as a classic recording and a 2024 Afro-Pop duet, and the catalog describes the version that plays. I used style names (ethio-jazz, afro-pop, wassoulou) and never nationalities. The keyword parser still had to unlearn "Amharic = ethio-jazz" and "Ethiopian = ethio-jazz" when the catalog grew (README, "What testing caught").
+
 ## A9. AI collaboration
 
 I built this with an AI coding assistant (Claude Code) and checked its work as I went.
@@ -103,11 +117,11 @@ I built this with an AI coding assistant (Claude Code) and checked its work as I
 - **A helpful suggestion:** letting the original scorer pick the songs and Gemini only *explain* them, with structured JSON, so a guardrail could check every title. That one design choice is why the app can't show an invented song, and it kept my Module 3 work at the center of the system.
 - **A flawed suggestion:** the assistant first used the model name `gemini-flash-lite-latest` from my earlier projects, which now returns "not found". Later, while writing a filter for "not in the catalog" items, its first version would have hidden **k-pop**, because "pop" appears inside it. It caught that before running the code, but it showed me why every rule needs a test. Separately, another AI tool gave me a description of the Gigi songs that repeated my own catalog's numbers back to me as if they were facts.
 
-> **DRAFT: written by my AI assistant from our work log. I need to check these examples and delete this line.**
+*Drafted with my AI assistant from our work log; reviewed by me.*
 
 ## A10. Reflection
 
-> **DRAFT: written by my AI assistant from what happened in this project. I need to rewrite it in my own words and delete this line.**
+*Drafted with my AI assistant from what happened in this project; reviewed by me.*
 
 **What changed from Module 3.** In Module 3, I learned that a recommender only knows the labels and numbers it's given. This project taught me the other half: a language model is great with *words* but shouldn't be trusted as the *source of truth*. Gemini understood "calm Ethiopian jazz for a rainy evening" far better than my keyword rules ever could, but I didn't let it choose songs. Most of the design work was deciding where the AI gets to make a decision (reading the request, writing explanations) and where it doesn't (which songs exist, which ones rank highest).
 
@@ -115,7 +129,7 @@ I built this with an AI coding assistant (Claude Code) and checked its work as I
 - I chose the songs and found the right recordings. The automatic iTunes matches gave me a Clair de Lune lullaby and a One Love remake.
 - I replaced Becher Yider when its recording didn't play well, and I chose Nafeken's mood myself.
 - When another AI tool described my Gigi songs, I noticed it was repeating my own catalog's numbers back to me as if they were facts.
-- I rated the outputs. My ratings showed something no automated test did: the explanations (4.5/5) were better than the picks (3.1/5).
+- I rated the outputs. My ratings showed something no automated test did: the explanations (4.5/5) were better than the picks (3.1/5). Adding the right songs raised the picks to 3.9/5 without changing any code.
 
 **What surprised me.** I expected the guardrail to catch Gemini inventing songs. It almost never did, because Gemini stayed inside the songs it was given. The real problems were quieter: preferences nobody asked for, songs excluded that I never mentioned, and a true-but-incomplete reason for an "80s classic" from the 2000s. A system can pass every check and still mislead by leaving something out.
 
@@ -128,6 +142,8 @@ I built this with an AI coding assistant (Claude Code) and checked its work as I
 ---
 
 # Part B: VibeJudge 1.0 (Module 3 scorer)
+
+*Part B describes Module 3 as it was: the original 25-song catalog, including Becher Yider. The catalog changes since then are in A8.*
 
 ## 1. Model Name  
 

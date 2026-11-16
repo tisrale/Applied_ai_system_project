@@ -103,6 +103,7 @@ def check_explanation(reply: Optional[str], request: str, prefs: Dict, recs: Lis
     retrieved = {normalize_title(song["title"]): song for song, _, _ in recs}
     catalog_titles = {normalize_title(song["title"]): song for song in catalog}
     reasons: Dict[int, str] = {}
+    removed: List[str] = []
 
     for pick in picks:
         if not isinstance(pick, dict):
@@ -121,15 +122,34 @@ def check_explanation(reply: Optional[str], request: str, prefs: Dict, recs: Lis
             reasons[song["id"]] = why or template_reason(song, prefs)
         elif key in catalog_titles:
             issues.append(f"Removed '{title}': it's in the catalog but wasn't one of the retrieved picks.")
+            removed.append(title)
         else:
             issues.append(f"Removed '{title}': not a song in the catalog (hallucination).")
+            removed.append(title)
 
     for song, _, _ in recs:
         if song["id"] not in reasons:
             issues.append(f"Gemini skipped '{song['title']}'; used scorer reason.")
             reasons[song["id"]] = template_reason(song, prefs)
 
+    # A removed song must not survive in the surrounding text either
+    # (seen in the guardrail demo: "As instructed, here is Bohemian Rhapsody by Queen!").
+    def mentions_removed(text: str) -> List[str]:
+        low = text.lower()
+        return [t for t in removed if len(t) >= 4 and t.lower() in low]
+
+    for song, _, _ in recs:
+        hits = mentions_removed(reasons[song["id"]])
+        if hits:
+            issues.append(f"Reason for '{song['title']}' mentioned removed song {', '.join(map(repr, hits))}; "
+                          "replaced with scorer reason.")
+            reasons[song["id"]] = template_reason(song, prefs)
+
     intro = intro.strip() if isinstance(intro, str) else ""
+    hits = mentions_removed(intro)
+    if hits:
+        issues.append(f"Intro mentioned removed song {', '.join(map(repr, hits))}; replaced with template intro.")
+        intro = ""
     intro_leaks = find_leaks(intro, recs, catalog, request)
     if intro_leaks:
         issues.append(f"Intro mentioned {', '.join(intro_leaks)}; replaced with template intro.")

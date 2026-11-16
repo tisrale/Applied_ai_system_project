@@ -1,4 +1,5 @@
 import csv
+import os
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass, asdict, field
 
@@ -108,7 +109,8 @@ class Recommender:
 
 def load_songs(csv_path: str) -> List[Dict]:
     """Read songs.csv into a list of dicts, converting numbers, splitting mood tags, and parsing explicit."""
-    print(f"Loading songs from {csv_path}...")
+    # Show a short path (not the full local path, which would end up in shared logs/READMEs)
+    print(f"Loading songs from {os.path.relpath(csv_path) if os.path.isabs(csv_path) else csv_path}...")
     float_fields = ("energy", "tempo_bpm", "valence", "danceability", "acousticness")
     int_fields = ("id", "popularity", "release_decade")
 

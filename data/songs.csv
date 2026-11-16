@@ -24,3 +24,19 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,po
 23,Abayi,Gigi,ethio-jazz,nostalgic,0.45,92,0.55,0.60,0.60,30,2000,nostalgic;hypnotic;flowing,amharic,false
 24,Nafeken,Gigi,ethio-jazz,nostalgic,0.63,92,0.45,0.55,0.65,25,2000,longing;yearning;dramatic,amharic,false
 25,Jerusalem,Alpha Blondy,reggae,uplifting,0.60,80,0.75,0.75,0.35,45,1980,spiritual;uplifting;peaceful,multilingual,false
+26,Nin Deema,Ali Birra,afro-pop,romantic,0.70,105,0.65,0.70,0.25,35,2020,romantic;longing;warm,oromo,false
+27,Sebebu,Aster Aweke,r&b,happy,0.70,110,0.75,0.70,0.35,50,1980,joyful;soulful;groovy,amharic,false
+28,Checheho,Aster Aweke,afro-pop,festive,0.88,128,0.85,0.85,0.30,45,2010,festive;danceable;joyful,amharic,false
+29,Tezeta (Nostalgia),Mulatu Astatke,ethio-jazz,melancholic,0.25,70,0.30,0.40,0.75,55,1970,longing;melancholic;hypnotic,instrumental,false
+30,Diaraby Nene,Oumou Sangare,wassoulou,romantic,0.60,100,0.55,0.65,0.75,45,1980,romantic;soulful;hypnotic,bambara,false
+31,Kamelemba,Oumou Sangare,wassoulou,confident,0.78,118,0.65,0.75,0.55,50,2010,groovy;bold;danceable,bambara,false
+32,One Man's Dream,Yanni,new age,peaceful,0.20,66,0.50,0.25,0.95,60,1990,tranquil;tender;dreamy,instrumental,false
+33,Reflections of Passion,Yanni,new age,romantic,0.40,80,0.55,0.35,0.60,55,1980,romantic;tender;dreamy,instrumental,false
+34,Santorini,Yanni,new age,energetic,0.85,128,0.60,0.50,0.20,60,1980,dramatic;cinematic;driving,instrumental,false
+35,Danza Kuduro,Don Omar,latin,festive,0.92,130,0.85,0.85,0.10,85,2010,festive;danceable;joyful,spanish,false
+36,Hips Don't Lie,Shakira,latin,festive,0.82,100,0.80,0.90,0.20,92,2000,danceable;sensual;festive,english,false
+37,Don't Stop Believin',Journey,rock,uplifting,0.75,119,0.55,0.50,0.15,90,1980,anthemic;nostalgic;uplifting,english,false
+38,Take On Me,a-ha,pop,happy,0.85,169,0.85,0.60,0.10,88,1980,euphoric;playful;nostalgic,english,false
+39,Billie Jean,Michael Jackson,pop,moody,0.72,117,0.60,0.90,0.05,95,1980,groovy;dark;driving,english,false
+40,Midnight City,M83,synthwave,moody,0.78,105,0.50,0.55,0.05,75,2010,euphoric;cinematic;driving,english,false
+41,Blinding Lights,The Weeknd,synthwave,energetic,0.82,171,0.55,0.55,0.05,95,2010,driving;nostalgic;cinematic,english,false

@@ -1,0 +1,23 @@
+> .\.venv\Scripts\python.exe -m src.ask "calm Ethiopian jazz for a rainy evening"
+
+Loading songs from data\songs.csv...
+
+Request : calm Ethiopian jazz for a rainy evening
+Profile : ethio-jazz, peaceful, energy 0.3, acoustic, tags: calm/cozy/melancholic   [parsed by gemini]
+
+Here is a cozy selection of calm Ethiopian jazz and related tracks tailored for a peaceful, rainy evening.
+
+1. Kahine (My Priest) - Gigi  (ethio-jazz, peaceful)  score 4.38/5.25
+   It is a great match for your cozy evening, sharing the exact peaceful mood and a low energy of 0.35 with strong acoustic elements.
+2. Tezeta (Nostalgia) - Mulatu Astatke  (ethio-jazz, melancholic)  score 3.58/5.25
+   This instrumental track fits your melancholic and calm taste profile with a low energy level of 0.25 and an acoustic sound.
+3. Abayi - Gigi  (ethio-jazz, nostalgic)  score 3.15/5.25
+   This ethio-jazz song offers a flowing, hypnotic feel with a fairly low energy of 0.45 and acoustic qualities.
+4. Nafeken - Gigi  (ethio-jazz, nostalgic)  score 3.00/5.25
+   This is a somewhat looser fit with a lower match score, featuring a higher energy of 0.63, but it keeps the ethio-jazz genre and yearning tags.
+5. Clair de Lune - Claude Debussy  (classical, peaceful)  score 2.40/5.25
+   This is a looser fit because it belongs to the classical genre rather than ethio-jazz, but it matches your peaceful mood and very low energy.
+
+Guardrail: VERIFIED  (explanation by gemini, model gemini:gemini-3.5-flash-lite, 9.9s)
+
+[exit code: 0]

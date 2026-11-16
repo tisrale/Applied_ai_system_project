@@ -27,13 +27,17 @@ ANY = "any"  # genre/mood placeholder that matches nothing, so the scorer ignore
 GENRE_ALIASES = {
     "hip hop": "hip-hop", "hiphop": "hip-hop", "rap": "hip-hop",
     "lo-fi": "lofi", "lo fi": "lofi",
-    "ethiopian": "ethio-jazz", "ethio jazz": "ethio-jazz", "ethio": "ethio-jazz",
-    "habesha": "ethio-jazz", "amharic": "ethio-jazz",
+    # "Ethiopian", "habesha" and "Amharic" alone are NOT genres: Ethiopian songs in the catalog
+    # are ethio-jazz (Gigi), afro-pop (Checheho, Nin Deema) and r&b (Sebebu). Only "Ethiopian jazz" is.
+    "ethiopian jazz": "ethio-jazz", "ethio jazz": "ethio-jazz", "ethiojazz": "ethio-jazz",
     "rnb": "r&b", "r and b": "r&b", "r & b": "r&b",
     "electronic": "edm", "dance music": "edm", "house": "edm",
     "synth": "synthwave", "retro wave": "synthwave", "80s synth": "synthwave",
     "indie": "indie pop", "piano": "classical", "orchestra": "classical",
     "salsa": "latin", "heavy metal": "metal", "acoustic folk": "folk",
+    "afropop": "afro-pop", "afro pop": "afro-pop",
+    "new-age": "new age", "newage": "new age", "meditation": "new age",
+    "wassulu": "wassoulou", "wasulu": "wassoulou",  # "Malian" alone is a nationality, not a genre
 }
 MOOD_ALIASES = {
     "calm": "peaceful", "peace": "peaceful", "sleep": "peaceful", "serene": "peaceful",
@@ -55,6 +59,8 @@ MOOD_ALIASES = {
 LANGUAGE_ALIASES = {
     "amharic": "amharic", "english": "english", "spanish": "spanish",
     "instrumental": "instrumental", "no lyrics": "instrumental", "no words": "instrumental",
+    "oromo": "oromo", "afaan oromo": "oromo", "oromiffa": "oromo", "oromigna": "oromo",
+    "bambara": "bambara", "bamanankan": "bambara",
 }
 # Typical energy for each mood, used by the keyword parser when the request gives no energy words.
 MOOD_ENERGY = {

@@ -46,7 +46,7 @@ def test_explain_prompt_only_contains_retrieved_songs(catalog):
 
 
 def test_cards_never_include_hallucinated_songs(catalog):
-    fake = FakeGemini([ETHIO_PROFILE, json.dumps({"intro": "x", "picks": [{"title": "Tizita", "why": "classic"}]})])
+    fake = FakeGemini([ETHIO_PROFILE, json.dumps({"intro": "x", "picks": [{"title": "Lalibela Sunrise", "why": "classic"}]})])
     result = VibeJudge(songs=catalog, llm=fake, k=3).recommend("calm Ethiopian jazz")
     catalog_ids = {s["id"] for s in catalog}
     assert all(s["id"] in catalog_ids for s, _, _ in result.recommendations)

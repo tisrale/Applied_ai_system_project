@@ -57,7 +57,7 @@ def test_validation_drops_unknown_genre_and_tags_with_warning(vocab):
 
 def test_keyword_parse_uses_first_mood_word(vocab):
     raw = keyword_parse("calm ethiopian jazz for a rainy evening", vocab)
-    assert raw["favorite_genre"] == "ethiopian"      # alias, snapped to ethio-jazz in validation
+    assert raw["favorite_genre"] == "ethiopian jazz"  # alias, snapped to ethio-jazz in validation
     assert raw["favorite_mood"] == "calm"            # not "rainy", which comes later
     prefs, _ = validate_profile(raw, vocab)
     assert prefs["favorite_genre"] == "ethio-jazz"
@@ -84,12 +84,34 @@ def test_keyword_parse_reports_genres_the_catalog_lacks(vocab):
 
 def test_unavailable_items_that_exist_in_catalog_are_not_reported(vocab):
     _, warnings = validate_profile({"favorite_genre": "reggae", "favorite_mood": "uplifting", "target_energy": 0.6,
-                                    "unavailable": ["Bob Marley", "Tizita", "k-pop", "reggae"]}, vocab)
+                                    "unavailable": ["Bob Marley", "Lalibela Sunrise", "k-pop", "reggae"]}, vocab)
     reported = [w for w in warnings if w.startswith("Not in the catalog")]
-    assert reported == ["Not in the catalog: Tizita", "Not in the catalog: k-pop"]
+    assert reported == ["Not in the catalog: Lalibela Sunrise", "Not in the catalog: k-pop"]
 
 
 def test_profile_wrapped_in_a_list_is_accepted(vocab):
     fake = FakeGemini(["[" + gemini_reply(favorite_genre="rock", favorite_mood="energetic", target_energy=0.8) + "]"])
     result = parse_request("80s rock", vocab, fake)
     assert result.source == "gemini" and result.prefs["favorite_genre"] == "rock"
+
+
+def test_oromo_requests_find_the_language(vocab):
+    prefs, _ = validate_profile(keyword_parse("romantic songs in Afaan Oromo", vocab), vocab)
+    assert prefs["preferred_language"] == "oromo"
+    assert prefs["favorite_mood"] == "romantic"
+
+
+def test_amharic_is_a_language_not_a_genre(vocab):
+    # Amharic songs now span ethio-jazz (Gigi) and r&b (Aster Aweke's Sebebu)
+    prefs, _ = validate_profile(keyword_parse("happy Amharic songs", vocab), vocab)
+    assert prefs["preferred_language"] == "amharic"
+    assert prefs["favorite_genre"] == "any"
+
+
+def test_ethiopian_alone_is_not_a_genre(vocab):
+    # "Ethiopian" is a nationality; Ethiopian songs span ethio-jazz, afro-pop and r&b
+    prefs, _ = validate_profile(keyword_parse("Ethiopian wedding dance party", vocab), vocab)
+    assert prefs["favorite_genre"] == "any"
+    assert prefs["favorite_mood"] == "festive"
+    prefs, _ = validate_profile(keyword_parse("calm Ethiopian jazz", vocab), vocab)
+    assert prefs["favorite_genre"] == "ethio-jazz"

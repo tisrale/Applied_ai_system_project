@@ -47,7 +47,7 @@ def test_gemini_refinement_is_validated_against_catalog(catalog, vocab):
     reply = json.dumps({"start_over": False,
                         "profile": dict(BASE, target_energy=1.4, favorite_genre="zouk"),
                         "exclude_artists": ["Gigi", "Taylor Swift"], "exclude_genres": [],
-                        "exclude_titles": ["Tizita"]})
+                        "exclude_titles": ["Lalibela Sunrise"]})
     r = refine("way more energy, no Gigi", BASE, ["Kahine (My Priest)"], vocab, catalog, FakeGemini([reply]))
     assert r.source == "gemini"
     assert r.prefs["target_energy"] == 1.0                     # clamped
